@@ -65,7 +65,7 @@ export class AuthResolver
             throw new ErrorResponse( 'Not Auth', 401 );
         }
 
-        const user = await UserEntity.findOne( username );
+        const user = await UserEntity.findOne( { username } );
 
         if ( !user )
         {
@@ -80,13 +80,13 @@ export class AuthResolver
             throw new ErrorResponse( 'Invalid Credentials', 401 );
         }
 
+        session.user = user.id;
+
         return user;
     }
 
-    @Mutation( () => UserEntity )
+    @Query( () => UserEntity )
     async getMe (
-        @Arg( 'id' )
-        id: number,
         @Ctx()
         { session }: MyContext
     ): Promise<UserEntity>
@@ -95,7 +95,8 @@ export class AuthResolver
         {
             throw new ErrorResponse( 'Not Auth', 401 );
         }
-        const user = await UserEntity.findOne( id );
+        const user = await UserEntity.findOne( session.user );
+
         if ( !user )
         {
             throw new ErrorResponse( 'Invalid Credentials', 401 );
@@ -109,8 +110,6 @@ export class AuthResolver
 
     @Mutation( () => Boolean )
     async logoutUser (
-        @Arg( 'id' )
-        id: number,
         @Ctx()
         { session }: MyContext
     ): Promise<boolean>
@@ -119,7 +118,7 @@ export class AuthResolver
         {
             throw new ErrorResponse( 'Not Auth', 401 );
         }
-        const user = await UserEntity.findOne( id );
+        const user = await UserEntity.findOne( session.user );
         if ( !user )
         {
             throw new ErrorResponse( 'Invalid Credentials', 401 );
@@ -141,8 +140,6 @@ export class AuthResolver
 
     @Mutation( () => Boolean )
     async deleteUser (
-        @Arg( 'id' )
-        id: number,
         @Ctx()
         { session }: MyContext
     ): Promise<boolean>
@@ -151,7 +148,7 @@ export class AuthResolver
         {
             throw new ErrorResponse( 'Not Auth', 401 );
         }
-        const user = await UserEntity.findOne( id );
+        const user = await UserEntity.findOne( session.user );
         if ( !user )
         {
             throw new ErrorResponse( 'Invalid Credentials', 401 );
@@ -160,7 +157,15 @@ export class AuthResolver
         {
             throw new ErrorResponse( 'Not Auth', 401 );
         }
-        UserEntity.delete( user );
+        session.destroy( err =>
+        {
+            if ( err )
+            {
+                console.log( `Session destruction error:`.red.bold );
+                console.error( err );
+            }
+        } );
+        UserEntity.delete( { id: user.id } );
         return true;
     }
 }

@@ -29,7 +29,7 @@ const main = async () =>
         username: process.env.POSTGRES_USERNAME,
         password: process.env.POSTGRES_PASSWORD,
         logging: true,
-        // synchronize: true,
+        synchronize: true,  // make new relation if it does not exists
         entities: [ UserEntity ]
     } );
 
