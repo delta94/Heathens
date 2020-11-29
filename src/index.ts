@@ -1,5 +1,9 @@
 import 'reflect-metadata';
-import express from 'express';
+import express, { Request, Response } from 'express';
+import session from 'express-session';
+import Redis from 'ioredis';
+import connectRedis from 'connect-redis';
+import cors from 'cors';
 import { ApolloServer } from 'apollo-server-express';
 import dotenv from 'dotenv';
 import 'colors';
@@ -9,10 +13,14 @@ import { createConnection } from "typeorm";
 import { AuthResolver } from './resolvers/auth';
 import { UserEntity } from './entities/User';
 import { errorHandler } from './middlewares/errorHandler';
+import { isProd } from './utils/constants';
 
 const main = async () =>
 {
     dotenv.config( { path: 'config.env' } );
+
+    const RedisClient = new Redis();
+    const RedisStore = connectRedis( session );
 
     await createConnection( {
         type: 'postgres',
@@ -28,6 +36,31 @@ const main = async () =>
 
     const app = express();
 
+    app.use( cors( {
+        origin: process.env.CLIENT_URL,
+        optionsSuccessStatus: 200
+    } ) );
+
+    app.get( '/', ( _: Request, res: Response ) =>
+    {
+        res.send( 'API up and runnin' );
+        res.end();
+    } );
+
+    app.use( session( {
+        store: new RedisStore( { client: RedisClient } ),
+        name: 'quid',
+        secret: process.env.SESSION_SECRET!,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: isProd(),
+            maxAge: 1000 * 60 * 60
+        }
+    } ) );
+
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
             resolvers: [ HelloResolver, AuthResolver ],
@@ -36,7 +69,7 @@ const main = async () =>
         context: ( { req, res } ) => ( { req, res } )
     } );
 
-    apolloServer.applyMiddleware( { app } );
+    apolloServer.applyMiddleware( { app, cors: false } );
 
     app.use( errorHandler );
 
