@@ -14,6 +14,7 @@ import { AuthResolver } from './resolvers/auth';
 import { UserEntity } from './entities/User';
 import { errorHandler } from './middlewares/errorHandler';
 import { isProd } from './utils/constants';
+import { MyContext } from './utils/types';
 
 const main = async () =>
 {
@@ -66,7 +67,7 @@ const main = async () =>
             resolvers: [ HelloResolver, AuthResolver ],
             validate: false
         } ),
-        context: ( { req, res } ) => ( { req, res } )
+        context: ( { req, res } ): MyContext => ( { req, res, session: req.session } )
     } );
 
     apolloServer.applyMiddleware( { app, cors: false } );
