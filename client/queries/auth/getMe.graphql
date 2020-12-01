@@ -1,0 +1,6 @@
+{
+  getMe{
+    name
+    email
+  }
+}

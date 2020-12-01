@@ -12,6 +12,7 @@ import { HelloResolver } from './resolvers/hello';
 import { createConnection } from "typeorm";
 import { AuthResolver } from './resolvers/auth';
 import { UserEntity } from './entities/User';
+import { ChannelEntity } from './entities/Channel';
 import { errorHandler } from './middlewares/errorHandler';
 import { isProd } from './utils/constants';
 import { MyContext } from './utils/types';
@@ -30,8 +31,10 @@ const main = async () =>
         password: process.env.POSTGRES_PASSWORD,
         logging: true,
         synchronize: true,  // make new relation if it does not exists
-        entities: [ UserEntity ]
+        entities: [ UserEntity, ChannelEntity ]
     } );
+
+    // await UserEntity.delete( {} );
 
     console.log( `Postgres is here`.blue.bold );
 

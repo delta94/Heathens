@@ -1,18 +1,21 @@
 import { MyContext } from "../utils/types";
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
 import { UserEntity } from '../entities/User';
 import { ErrorResponse } from "../utils/ErrorResponse";
 import argon from 'argon2';
+import { isAuthenticated } from "../middlewares/protect";
 
 @Resolver()
 export class AuthResolver
 {
+    // @UseMiddleware( isAuthenticated )
     @Query( () => [ UserEntity ] )
     getUsers (): Promise<UserEntity[]>
     {
         return UserEntity.find();
     }
 
+    @UseMiddleware( isAuthenticated )
     @Query( () => UserEntity )
     getSingleUser (
         @Arg( 'id' )
@@ -38,7 +41,7 @@ export class AuthResolver
     {
         if ( session.user )
         {
-            throw new ErrorResponse( 'Not Auth', 401 );
+            throw new ErrorResponse( 'Not Authenticated', 401 );
         }
 
         const hashedPassword = await argon.hash( password );
@@ -62,7 +65,7 @@ export class AuthResolver
     {
         if ( session.user )
         {
-            throw new ErrorResponse( 'Not Auth', 401 );
+            throw new ErrorResponse( 'Not Authenticated', 401 );
         }
 
         const user = await UserEntity.findOne( { username } );
@@ -85,48 +88,24 @@ export class AuthResolver
         return user;
     }
 
+    @UseMiddleware( isAuthenticated )
     @Query( () => UserEntity )
     async getMe (
         @Ctx()
         { session }: MyContext
     ): Promise<UserEntity>
     {
-        if ( !session.user )
-        {
-            throw new ErrorResponse( 'Not Auth', 401 );
-        }
         const user = await UserEntity.findOne( session.user );
-
-        if ( !user )
-        {
-            throw new ErrorResponse( 'Invalid Credentials', 401 );
-        }
-        if ( user.id !== session.user )
-        {
-            throw new ErrorResponse( 'Not Auth', 401 );
-        }
-        return user;
+        return user!;
     }
 
+    @UseMiddleware( isAuthenticated )
     @Mutation( () => Boolean )
     async logoutUser (
         @Ctx()
         { session }: MyContext
     ): Promise<boolean>
     {
-        if ( !session.user )
-        {
-            throw new ErrorResponse( 'Not Auth', 401 );
-        }
-        const user = await UserEntity.findOne( session.user );
-        if ( !user )
-        {
-            throw new ErrorResponse( 'Invalid Credentials', 401 );
-        }
-        if ( user.id !== session.user )
-        {
-            throw new ErrorResponse( 'Not Auth', 401 );
-        }
         session.destroy( err =>
         {
             if ( err )
@@ -144,19 +123,7 @@ export class AuthResolver
         { session }: MyContext
     ): Promise<boolean>
     {
-        if ( !session.user )
-        {
-            throw new ErrorResponse( 'Not Auth', 401 );
-        }
-        const user = await UserEntity.findOne( session.user );
-        if ( !user )
-        {
-            throw new ErrorResponse( 'Invalid Credentials', 401 );
-        }
-        if ( user.id !== session.user )
-        {
-            throw new ErrorResponse( 'Not Auth', 401 );
-        }
+        UserEntity.delete( { id: session.user as any } );
         session.destroy( err =>
         {
             if ( err )
@@ -165,7 +132,6 @@ export class AuthResolver
                 console.error( err );
             }
         } );
-        UserEntity.delete( { id: user.id } );
         return true;
     }
 }

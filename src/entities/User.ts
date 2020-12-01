@@ -1,5 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
-import { Entity, Column, CreateDateColumn, BaseEntity, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, CreateDateColumn, BaseEntity, PrimaryGeneratedColumn, OneToOne } from "typeorm";
+import { ChannelEntity } from "./Channel";
 
 @ObjectType()
 @Entity()
@@ -23,6 +24,9 @@ export class UserEntity extends BaseEntity
 
     @Column()
     password!: string;
+
+    @OneToOne( () => ChannelEntity, { nullable: true } )
+    channel: ChannelEntity;
 
     @Field( () => String )
     @CreateDateColumn()

@@ -1,0 +1,6 @@
+{
+  getUsers{
+    name
+    email
+  }
+}
