@@ -16,6 +16,7 @@ import { ChannelEntity } from './entities/Channel';
 import { errorHandler } from './middlewares/errorHandler';
 import { isProd } from './utils/constants';
 import { MyContext } from './utils/types';
+import { ChannelResolver } from './resolvers/channel';
 
 const main = async () =>
 {
@@ -67,7 +68,7 @@ const main = async () =>
 
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
-            resolvers: [ HelloResolver, AuthResolver ],
+            resolvers: [ HelloResolver, AuthResolver,ChannelResolver ],
             validate: false
         } ),
         context: ( { req, res } ): MyContext => ( { req, res, session: req.session } )

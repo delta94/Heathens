@@ -15,10 +15,10 @@ export class ChannelEntity extends BaseEntity
     name!: string;
 
     @Column( () => String )
-    description!: string;
+    desc!: string;
 
     @OneToMany( () => UserEntity, user => user.channel, { nullable: true } )
-    @Field( () => [ UserEntity ] )
+    @Field( () => [ UserEntity ], { nullable: true } )
     users: UserEntity[];
 
     @Field( () => String )

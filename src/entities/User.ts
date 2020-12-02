@@ -25,6 +25,9 @@ export class UserEntity extends BaseEntity
     @Column()
     password!: string;
 
+    @Column( { default: 'user' } )
+    role!: string;
+
     @OneToOne( () => ChannelEntity, { nullable: true } )
     channel: ChannelEntity;
 
