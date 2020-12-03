@@ -1,6 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
-import { Entity, Column, CreateDateColumn, BaseEntity, PrimaryGeneratedColumn, OneToOne } from "typeorm";
+import { Entity, Column, CreateDateColumn, BaseEntity, PrimaryGeneratedColumn, OneToOne, OneToMany } from "typeorm";
 import { ChannelEntity } from "./Channel";
+import { MessageEntity } from "./Message";
 
 @ObjectType()
 @Entity()
@@ -28,8 +29,13 @@ export class UserEntity extends BaseEntity
     @Column( { default: 'user' } )
     role!: string;
 
-    @OneToOne( () => ChannelEntity, { nullable: true } )
+    @OneToOne( () => ChannelEntity )
+    @Field( { nullable: true } )
     channel: ChannelEntity;
+
+    @OneToMany( () => MessageEntity, message => message.poster )
+    @Field( { nullable: true } )
+    messages: MessageEntity[];
 
     @Field( () => String )
     @CreateDateColumn()

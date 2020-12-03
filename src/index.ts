@@ -17,6 +17,8 @@ import { errorHandler } from './middlewares/errorHandler';
 import { isProd } from './utils/constants';
 import { MyContext } from './utils/types';
 import { ChannelResolver } from './resolvers/channel';
+import { MessageEntity } from './entities/Message';
+import { MessageResolver } from './resolvers/message';
 
 const main = async () =>
 {
@@ -32,7 +34,7 @@ const main = async () =>
         password: process.env.POSTGRES_PASSWORD,
         logging: true,
         synchronize: true,  // make new relation if it does not exists
-        entities: [ UserEntity, ChannelEntity ]
+        entities: [ UserEntity, ChannelEntity, MessageEntity ]
     } );
 
     // await UserEntity.delete( {} );
@@ -68,7 +70,7 @@ const main = async () =>
 
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
-            resolvers: [ HelloResolver, AuthResolver,ChannelResolver ],
+            resolvers: [ HelloResolver, AuthResolver,ChannelResolver, MessageResolver ],
             validate: false
         } ),
         context: ( { req, res } ): MyContext => ( { req, res, session: req.session } )
