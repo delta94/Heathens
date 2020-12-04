@@ -1,7 +1,7 @@
 import { MyContext } from "../utils/types";
 import { ErrorResponse } from "../utils/ErrorResponse";
 import { MiddlewareFn } from "type-graphql";
-import { UserEntity } from "src/entities/User";
+import { UserEntity } from "../entities/User";
 
 export const isAuthenticated: MiddlewareFn<MyContext> = ( { context }, next ) =>
 {

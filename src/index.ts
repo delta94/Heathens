@@ -38,6 +38,7 @@ const main = async () =>
     } );
 
     // await UserEntity.delete( {} );
+    // await ChannelEntity.delete( {} );
 
     console.log( `Postgres is here`.blue.bold );
 
@@ -70,7 +71,7 @@ const main = async () =>
 
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
-            resolvers: [ HelloResolver, AuthResolver,ChannelResolver, MessageResolver ],
+            resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver ],
             validate: false
         } ),
         context: ( { req, res } ): MyContext => ( { req, res, session: req.session } )

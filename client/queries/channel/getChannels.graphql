@@ -1,0 +1,11 @@
+{
+  getChannels {
+    desc
+    name
+    messages {
+      poster {
+        name
+      }
+    }
+  }
+}

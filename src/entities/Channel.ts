@@ -15,7 +15,8 @@ export class ChannelEntity extends BaseEntity
     @Column( { unique: true } )
     name!: string;
 
-    @Column( () => String )
+    @Field( () => String )
+    @Column()
     desc!: string;
 
     @OneToMany( () => UserEntity, user => user.channel, { nullable: true } )

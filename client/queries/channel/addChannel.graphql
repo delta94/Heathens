@@ -1,0 +1,8 @@
+mutation {
+  addChannel(name: "TS", desc: "The Future") {
+    name
+    users {
+      name
+    }
+  }
+}

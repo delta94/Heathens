@@ -30,11 +30,11 @@ export class UserEntity extends BaseEntity
     role!: string;
 
     @OneToOne( () => ChannelEntity )
-    @Field( { nullable: true } )
+    @Field( () => ChannelEntity, { nullable: true } )
     channel: ChannelEntity;
 
     @OneToMany( () => MessageEntity, message => message.poster )
-    @Field( { nullable: true } )
+    @Field( () => [ MessageEntity ], { nullable: true } )
     messages: MessageEntity[];
 
     @Field( () => String )

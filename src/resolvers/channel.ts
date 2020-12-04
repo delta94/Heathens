@@ -1,3 +1,4 @@
+import { ErrorResponse } from "../utils/ErrorResponse";
 import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
 import { ChannelEntity } from '../entities/Channel';
 import { isAdmin, isAuthenticated } from "../middlewares/protect";
@@ -7,9 +8,10 @@ export class ChannelResolver
 {
     @UseMiddleware( isAuthenticated )
     @Query( () => [ ChannelEntity ] )
-    getChannels (): Promise<ChannelEntity[]>
+    async getChannels (): Promise<ChannelEntity[]>
     {
-        return ChannelEntity.find();
+        const channels = await ChannelEntity.find();
+        return channels;
     }
 
     @UseMiddleware( isAuthenticated )
@@ -22,8 +24,7 @@ export class ChannelResolver
         return ChannelEntity.findOne( id );
     }
 
-    @UseMiddleware( isAuthenticated )
-    @UseMiddleware( isAdmin )
+    @UseMiddleware( isAuthenticated, isAdmin )
     @Mutation( () => ChannelEntity )
     async addChannel (
         @Arg( 'name' )
@@ -33,19 +34,16 @@ export class ChannelResolver
     ): Promise<ChannelEntity>
     {
         const newChannel = await ChannelEntity.create( { name, desc } ).save();
-
         return newChannel;
     }
 
-    @UseMiddleware( isAuthenticated )
-    @UseMiddleware( isAdmin )
+    @UseMiddleware( isAuthenticated, isAdmin )
     @Mutation( () => Boolean )
     async deleteChannel (
-        @Arg( 'id' )
-        id: number
+        // @Arg( 'id' )
+        // id: number
     ): Promise<boolean>
     {
-        ChannelEntity.delete( { id } );
-        return true;
+        throw new ErrorResponse( 'Resource does not exists', 400 );
     }
 }
