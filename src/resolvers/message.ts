@@ -1,6 +1,6 @@
 import { MessageEntity } from "../entities/Message";
 import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
-import { isAdmin, isAuthenticated } from "../middlewares/protect";
+import { isAuthenticated } from "../middlewares/protect";
 import { ErrorResponse } from "../utils/ErrorResponse";
 
 @Resolver()
