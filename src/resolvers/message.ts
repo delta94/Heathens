@@ -1,7 +1,7 @@
 import { MessageEntity } from "../entities/Message";
 import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
-import { ChannelEntity } from '../entities/Channel';
 import { isAdmin, isAuthenticated } from "../middlewares/protect";
+import { ErrorResponse } from "../utils/ErrorResponse";
 
 @Resolver()
 export class MessageResolver
@@ -15,39 +15,36 @@ export class MessageResolver
 
     @UseMiddleware( isAuthenticated )
     @Query( () => MessageEntity )
-    getSingleChannel (
+    async getSingleMessage (
         @Arg( 'id' )
         id: number
     ): Promise<MessageEntity | undefined>
     {
-        return MessageEntity.findOne( id );
+        const message = await MessageEntity.findOne( id );
+
+        if ( !message )
+        {
+            throw new ErrorResponse( 'Resource does not exits', 404 );
+        }
+        return message;
     }
-
-    // @UseMiddleware( isAuthenticated )
-    // @Mutation( () => MessageEntity )
-    // async postMessage (
-    //     @Arg( 'content' )
-    //     content: string,
-    //     @Arg( 'channel' )
-    //     channel: string,
-    //     @Ctx()
-    //     { session }: MyContext
-    // ): Promise<MessageEntity>
-    // {
-    //     const newMessage = await MessageEntity.create( { content   } ).save();
-
-    //     return newChannel;
-    // }
 
     @UseMiddleware( isAuthenticated )
     @UseMiddleware( isAdmin )
     @Mutation( () => Boolean )
-    async deleteChannel (
+    async deleteMessage (
         @Arg( 'id' )
         id: number
     ): Promise<boolean>
     {
-        ChannelEntity.delete( { id } );
+        const message = await MessageEntity.findOne( id );
+
+        if ( !message )
+        {
+            throw new ErrorResponse( 'Resource does not exits', 404 );
+        }
+
+        MessageEntity.delete( { id } );
         return true;
     }
 }

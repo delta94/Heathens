@@ -16,12 +16,19 @@ export class ChannelResolver
 
     @UseMiddleware( isAuthenticated )
     @Query( () => ChannelEntity )
-    getSingleChannel (
+    async getSingleChannel (
         @Arg( 'id' )
         id: number
     ): Promise<ChannelEntity | undefined>
     {
-        return ChannelEntity.findOne( id );
+        const channel = await ChannelEntity.findOne( id );
+
+        if ( !channel )
+        {
+            throw new ErrorResponse( 'Resource does not exits', 404 );
+        }
+
+        return channel;
     }
 
     @UseMiddleware( isAuthenticated, isAdmin )
@@ -40,10 +47,19 @@ export class ChannelResolver
     @UseMiddleware( isAuthenticated, isAdmin )
     @Mutation( () => Boolean )
     async deleteChannel (
-        // @Arg( 'id' )
-        // id: number
+        @Arg( 'id' )
+        id: number
     ): Promise<boolean>
     {
-        throw new ErrorResponse( 'Resource does not exists', 400 );
+        const channel = await ChannelEntity.findOne( id );
+
+        if ( !channel )
+        {
+            throw new ErrorResponse( 'Resource does not exits', 404 );
+        }
+
+        ChannelEntity.delete( { id } );
+
+        return true;
     }
 }

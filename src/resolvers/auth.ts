@@ -123,7 +123,16 @@ export class AuthResolver
         { session }: MyContext
     ): Promise<boolean>
     {
+
+        const user = await UserEntity.findOne( session.user );
+
+        if ( !user )
+        {
+            throw new ErrorResponse( 'Resource does not exits', 404 );
+        }
+
         UserEntity.delete( { id: session.user as any } );
+
         session.destroy( err =>
         {
             if ( err )
@@ -132,6 +141,7 @@ export class AuthResolver
                 console.error( err );
             }
         } );
+
         return true;
     }
 }
