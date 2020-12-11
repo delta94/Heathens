@@ -30,7 +30,17 @@ export class MessageResolver
     }
 
     @UseMiddleware( isAuthenticated )
-    @UseMiddleware( isAdmin )
+    @Mutation( () => MessageEntity )
+    async postMessage (
+        @Arg( 'content' )
+        content: string
+    ): Promise<MessageEntity>
+    {
+        const message = await MessageEntity.create( { content } ).save();
+        return message;
+    }
+
+    @UseMiddleware( isAuthenticated )
     @Mutation( () => Boolean )
     async deleteMessage (
         @Arg( 'id' )
