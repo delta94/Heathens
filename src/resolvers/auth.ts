@@ -184,18 +184,7 @@ export class AuthResolver
 
         const messages = await MessageEntity.find( { posterId: userId } );
 
-        let messageIds = '';
-        messages.forEach( ( message, i ) =>
-        {
-            if ( messages.length - i === 1 )
-            {
-                messageIds += message.id;
-            }
-            else
-            {
-                messageIds += message.id + ',';
-            }
-        } );
+        const messageIds = messages.map( mess => mess.id );
 
         await getConnection().transaction( async tn =>
         {
