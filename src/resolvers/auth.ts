@@ -4,6 +4,8 @@ import { UserEntity } from '../entities/User';
 import { ErrorResponse } from "../utils/ErrorResponse";
 import argon from 'argon2';
 import { isAuthenticated } from "../middlewares/protect";
+import { ChannelEntity } from "../entities/Channel";
+import { getConnection } from "typeorm";
 
 @Resolver()
 export class AuthResolver
@@ -114,6 +116,33 @@ export class AuthResolver
                 console.error( err );
             }
         } );
+        return true;
+    }
+
+    @UseMiddleware( isAuthenticated )
+    @Mutation( () => Boolean )
+    async joinChannel (
+        @Ctx()
+        { session }: MyContext,
+        @Arg( 'channelId' )
+        channelId: string
+    ): Promise<boolean>
+    {
+        const channel = await ChannelEntity.findOne( channelId );
+        if ( !channel )
+        {
+            throw new ErrorResponse( 'Channel does not exists', 404 );
+        }
+        await getConnection().transaction( async tn =>
+        {
+            await tn.query( `
+                UPDATE channel_entity
+                SET "userIds" = "userIds" || ${ session.user }
+                WHERE id = ${ channelId }
+            `);
+        } );
+        const updatedChannel = await ChannelEntity.findOne( channelId );
+        console.log( 'updatedChannel', updatedChannel );
         return true;
     }
 

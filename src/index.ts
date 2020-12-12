@@ -19,6 +19,7 @@ import { MyContext } from './utils/types';
 import { ChannelResolver } from './resolvers/channel';
 import { MessageEntity } from './entities/Message';
 import { MessageResolver } from './resolvers/message';
+import { channelUsersLoader } from './utils/dataLoaders';
 
 const main = async () =>
 {
@@ -74,7 +75,7 @@ const main = async () =>
             resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver ],
             validate: false
         } ),
-        context: ( { req, res } ): MyContext => ( { req, res, session: req.session } )
+        context: ( { req, res } ): MyContext => ( { req, res, session: req.session, channelUsersLoader: channelUsersLoader() } )
     } );
 
     apolloServer.applyMiddleware( { app, cors: false } );

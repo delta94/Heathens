@@ -1,7 +1,9 @@
 import { ErrorResponse } from "../utils/ErrorResponse";
-import { Arg, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
 import { ChannelEntity } from '../entities/Channel';
 import { isAdmin, isAuthenticated } from "../middlewares/protect";
+import { MyContext } from "../utils/types";
+import { UserEntity } from "../entities/User";
 
 @Resolver()
 export class ChannelResolver
@@ -29,6 +31,29 @@ export class ChannelResolver
         }
 
         return channel;
+    }
+
+    @UseMiddleware( isAuthenticated )
+    @Query( () => [ UserEntity ] )
+    async getUsersInChannel (
+        @Arg( 'id' )
+        id: number,
+        @Ctx()
+        { channelUsersLoader }: MyContext
+    ): Promise<( UserEntity | Error )[]>
+    {
+        const channel = await ChannelEntity.findOne( id );
+
+        if ( !channel )
+        {
+            throw new ErrorResponse( 'Resource does not exits', 404 );
+        }
+
+        const users = await channelUsersLoader.loadMany( channel.userIds );
+
+        console.log( users );
+
+        return users;
     }
 
     @UseMiddleware( isAuthenticated, isAdmin )
