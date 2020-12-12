@@ -23,7 +23,7 @@ import { usersLoader, messagesLoader, channelLoader } from './utils/dataLoaders'
 
 const main = async () =>
 {
-    dotenv.config( { path: 'config.env' } );
+    dotenv.config( { path: '.env.local' } );
 
     const RedisClient = new Redis();
     const RedisStore = connectRedis( session );
