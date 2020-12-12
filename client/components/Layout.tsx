@@ -15,7 +15,7 @@ const Layout = ( { children } ) =>
                 />
                 <meta name='description' content='realt time chat app' />
                 <meta name='keywords' content='amoeba' />
-                <title>Amoeba</title>
+                <title>Heathens</title>
                 {/* <link rel='manifest' href='/manifest.json' />
                 <link href='./icons/js.png' rel='icon' type='image/png' sizes='16x16' />
                 <link href='./icons/js.png' rel='icon' type='image/png' sizes='32x32' />

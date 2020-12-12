@@ -1,7 +1,7 @@
 import { Container, Typography, Button } from '@material-ui/core';
 import Layout from '../components/Layout';
 
-const index = () =>
+const CHome = () =>
 {
   return (
     <Layout>
@@ -13,4 +13,4 @@ const index = () =>
   );
 };
 
-export default index;
+export default CHome;

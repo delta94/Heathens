@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { createStyles, makeStyles, Theme, Grid, AppBar, Toolbar, Typography, Button, IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
+import DarkModeIcon from '@material-ui/icons/Brightness4';
 import NextLink from 'next/link';
 
 const useStyles = makeStyles( ( theme: Theme ) =>
@@ -40,8 +41,14 @@ const Navbar = () =>
                     </Typography>
                     </Grid>
                     <Grid>
+                        <IconButton>
+                            <DarkModeIcon />
+                        </IconButton>
                         <NextLink href='/login' passHref>
                             <Button color='inherit'>Login</Button>
+                        </NextLink>
+                        <NextLink href='/register' passHref>
+                            <Button color='inherit'>Register</Button>
                         </NextLink>
                     </Grid>
                 </Toolbar>
