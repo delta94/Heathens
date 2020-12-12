@@ -36,9 +36,11 @@ const Navbar = () =>
                         <IconButton edge="start" className={ classes.menuButton } color="inherit" aria-label="menu">
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant="h6">
-                            Heathens
-                    </Typography>
+                        <NextLink href='/' passHref>
+                            <Button size='large'>
+                                Heathens
+                            </Button>
+                        </NextLink>
                     </Grid>
                     <Grid>
                         <IconButton>
