@@ -7,7 +7,7 @@ import { isAuthenticated } from "../middlewares/protect";
 import { ChannelEntity } from "../entities/Channel";
 import { getConnection } from "typeorm";
 
-@Resolver()
+@Resolver( UserEntity )
 export class AuthResolver
 {
     // @UseMiddleware( isAuthenticated )
@@ -125,7 +125,7 @@ export class AuthResolver
         @Ctx()
         { session }: MyContext,
         @Arg( 'channelId' )
-        channelId: string
+        channelId: number
     ): Promise<boolean>
     {
         const channel = await ChannelEntity.findOne( channelId );
@@ -133,16 +133,35 @@ export class AuthResolver
         {
             throw new ErrorResponse( 'Channel does not exists', 404 );
         }
-        await getConnection().transaction( async tn =>
-        {
-            await tn.query( `
+        await getConnection().query( ( `
                 UPDATE channel_entity
                 SET "userIds" = "userIds" || ${ session.user }
                 WHERE id = ${ channelId }
-            `);
-        } );
-        const updatedChannel = await ChannelEntity.findOne( channelId );
-        console.log( 'updatedChannel', updatedChannel );
+            `) );
+
+        return true;
+    }
+
+    @UseMiddleware( isAuthenticated )
+    @Mutation( () => Boolean )
+    async leaveChannel (
+        @Ctx()
+        { session }: MyContext,
+        @Arg( 'channelId' )
+        channelId: number
+    ): Promise<boolean>
+    {
+        const channel = await ChannelEntity.findOne( channelId );
+        if ( !channel )
+        {
+            throw new ErrorResponse( 'Channel does not exists', 404 );
+        }
+        await getConnection().query( ( `
+                UPDATE channel_entity
+                SET "userIds" = array_remove("userIds", ${ session.user })
+                WHERE id = ${ channel.id }
+            `) );
+
         return true;
     }
 

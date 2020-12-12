@@ -1,0 +1,15 @@
+{
+  getSingleChannel(id:20){
+    name
+    desc
+    users{
+      username
+    }
+    messages{
+      content
+      poster{
+        username
+      }
+    }
+  }
+}

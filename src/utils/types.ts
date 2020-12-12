@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import { ISession } from './interfaces';
-import { channelUsersLoader } from './dataLoaders';
+import { usersLoader, messagesLoader, channelLoader, } from './dataLoaders';
 
 export type MyContext = {
     req: Request,
     res: Response;
     session: ISession,
-    channelUsersLoader: ReturnType<typeof channelUsersLoader>;
+    usersLoader: ReturnType<typeof usersLoader>;
+    messagesLoader: ReturnType<typeof messagesLoader>;
+    channelLoader: ReturnType<typeof channelLoader>;
 };

@@ -26,6 +26,9 @@ export class ChannelEntity extends BaseEntity
     @Column( 'int', { nullable: true, array: true } )
     userIds: number[];
 
+    @Column( 'int', { nullable: true, array: true } )
+    messageIds: number[];
+
     @OneToMany( () => MessageEntity, message => message.channel, { nullable: true } )
     @Field( () => [ MessageEntity ], { nullable: true } )
     messages: MessageEntity[];

@@ -21,11 +21,17 @@ export class MessageEntity extends BaseEntity
 
     @ManyToOne( () => UserEntity, user => user.messages )
     @Field( () => UserEntity )
-    poster: UserEntity;
+    poster!: UserEntity;
 
     @ManyToOne( () => ChannelEntity, channel => channel.messages )
     @Field( () => ChannelEntity )
-    channel: ChannelEntity;
+    channel!: ChannelEntity;
+
+    @Column()
+    posterId!: number;
+
+    @Column()
+    channelId!: number;
 
     @Field( () => String )
     @CreateDateColumn()
