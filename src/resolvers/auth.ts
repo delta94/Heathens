@@ -6,6 +6,7 @@ import argon from 'argon2';
 import { isAuthenticated } from "../middlewares/protect";
 import { ChannelEntity } from "../entities/Channel";
 import { getConnection } from "typeorm";
+import { MessageEntity } from "../entities/Message";
 
 @Resolver( UserEntity )
 export class AuthResolver
@@ -179,7 +180,38 @@ export class AuthResolver
             throw new ErrorResponse( 'Resource does not exits', 404 );
         }
 
-        UserEntity.delete( { id: session.user as any } );
+        const userId = parseInt( session.user as string );
+
+        const messages = await MessageEntity.find( { posterId: userId } );
+
+        let messageIds = '';
+        messages.forEach( ( message, i ) =>
+        {
+            if ( messages.length - i === 1 )
+            {
+                messageIds += message.id;
+            }
+            else
+            {
+                messageIds += message.id + ',';
+            }
+        } );
+
+        await getConnection().transaction( async tn =>
+        {
+            await tn.query( `
+            update channel_entity set "messageIds" = (SELECT ARRAY(SELECT UNNEST("messageIds")
+                EXCEPT 
+                SELECT UNNEST(ARRAY[${ messageIds }])))
+            `);
+
+            await tn.query( `
+                DELETE from message_entity
+                WHERE "posterId" = ${ userId }
+            `);
+        } );
+
+        await UserEntity.delete( { id: session.user as any } );
 
         session.destroy( err =>
         {
