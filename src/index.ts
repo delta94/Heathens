@@ -39,6 +39,7 @@ const main = async () =>
     } );
 
     // await UserEntity.delete( {} );
+    // await MessageEntity.delete( {} );
     // await ChannelEntity.delete( {} );
 
     console.log( `Postgres is here`.blue.bold );

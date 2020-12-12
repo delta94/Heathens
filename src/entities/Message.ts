@@ -15,9 +15,9 @@ export class MessageEntity extends BaseEntity
     @Column()
     content!: string;
 
-    @Column( () => String )
-    @Field( { defaultValue: 'text' } )
-    type!: string;
+    @Column( 'text', { default: true } )
+    @Field()
+    type: string = 'text';
 
     @ManyToOne( () => UserEntity, user => user.messages )
     @Field( () => UserEntity )

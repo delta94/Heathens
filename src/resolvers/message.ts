@@ -44,6 +44,15 @@ export class MessageResolver
         { session, }: MyContext
     ): Promise<MessageEntity>
     {
+        const channel = await ChannelEntity.findOne( channelId );
+        if ( !channel )
+        {
+            throw new ErrorResponse( 'Resource does not exits', 404 );
+        }
+        if ( !channel.userIds || !channel.userIds.includes( session.user as number ) )
+        {
+            throw new ErrorResponse( 'You must join the channel first', 404 );
+        }
         const newMessage = await MessageEntity.create( { content, posterId: session.user as number, channelId } ).save();
         await getConnection().query( ( `
                 UPDATE channel_entity
