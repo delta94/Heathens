@@ -1,5 +1,6 @@
 {
   getChannels {
+    id
     desc
     name
     messages {

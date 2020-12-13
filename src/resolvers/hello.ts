@@ -1,6 +1,4 @@
-import { Publisher, PubSub, PubSubEngine, Query, Resolver, Root, Subscription } from "type-graphql";
-
-let count = 0;
+import { Publisher, PubSub, Query, Resolver, Root, Subscription } from "type-graphql";
 
 @Resolver()
 export class HelloResolver

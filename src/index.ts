@@ -19,6 +19,7 @@ import { MyContext } from './utils/types';
 import { ChannelResolver } from './resolvers/channel';
 import { MessageEntity } from './entities/Message';
 import { MessageResolver } from './resolvers/message';
+import { SampleResolver } from './resolvers/mysubs';
 import { usersLoader, messagesLoader, channelLoader } from './utils/dataLoaders';
 import { createPubSub } from './utils/pubsub';
 import { createServer } from 'http';
@@ -74,14 +75,11 @@ const main = async () =>
 
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
-            resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver ],
+            resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver, SampleResolver ],
             validate: false,
             pubSub: createPubSub()
         } ),
         context: ( { req, res } ): MyContext => ( { req, res, session: req.session, usersLoader: usersLoader(), messagesLoader: messagesLoader(), channelLoader: channelLoader(), pubsub: createPubSub() } ),
-        subscriptions: {
-            path: '/subscriptions'
-        }
     } );
 
     apolloServer.applyMiddleware( { app, cors: false } );
@@ -93,16 +91,16 @@ const main = async () =>
 
     server.listen( PORT, async () =>
     {
-        new SubscriptionServer( {
+        SubscriptionServer.create( {
             execute,
             subscribe,
             schema: await buildSchema( {
-                resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver ],
+                resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver, SampleResolver ],
                 validate: false
             } ),
         }, {
             server,
-            path: '/subscriptions',
+            path: '/graphql',
         } );
 
         console.log( `Server started on port ${ PORT }`.green.bold );
