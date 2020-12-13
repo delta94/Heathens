@@ -20,6 +20,11 @@ import { ChannelResolver } from './resolvers/channel';
 import { MessageEntity } from './entities/Message';
 import { MessageResolver } from './resolvers/message';
 import { usersLoader, messagesLoader, channelLoader } from './utils/dataLoaders';
+import { createPubSub } from './utils/pubsub';
+import { createServer } from 'http';
+import { execute, subscribe } from 'graphql';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+
 
 const main = async () =>
 {
@@ -37,10 +42,6 @@ const main = async () =>
         synchronize: true,
         entities: [ UserEntity, ChannelEntity, MessageEntity ]
     } );
-
-    // await UserEntity.delete( {} );
-    // await MessageEntity.delete( {} );
-    // await ChannelEntity.delete( {} );
 
     console.log( `Postgres is here`.blue.bold );
 
@@ -76,16 +77,33 @@ const main = async () =>
             resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver ],
             validate: false
         } ),
-        context: ( { req, res } ): MyContext => ( { req, res, session: req.session, usersLoader: usersLoader(), messagesLoader: messagesLoader(), channelLoader: channelLoader() } )
+        context: ( { req, res } ): MyContext => ( { req, res, session: req.session, usersLoader: usersLoader(), messagesLoader: messagesLoader(), channelLoader: channelLoader(), pubsub: createPubSub() } ),
+        subscriptions: {
+            path: '/subscriptions'
+        }
     } );
 
     apolloServer.applyMiddleware( { app, cors: false } );
 
     app.use( errorHandler );
 
+    const server = createServer( app );
     const PORT = process.env.PORT || 5000;
-    app.listen( PORT, () =>
+
+    server.listen( PORT, async () =>
     {
+        new SubscriptionServer( {
+            execute,
+            subscribe,
+            schema: await buildSchema( {
+                resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver ],
+                validate: false
+            } ),
+        }, {
+            server,
+            path: '/subscriptions',
+        } );
+
         console.log( `Server started on port ${ PORT }`.green.bold );
     } );
 };

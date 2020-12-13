@@ -1,11 +1,12 @@
 import { MessageEntity } from "../entities/Message";
-import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, FieldResolver, Mutation, PubSub, PubSubEngine, Resolver, Root, UseMiddleware } from "type-graphql";
 import { isAuthenticated } from "../middlewares/protect";
 import { ErrorResponse } from "../utils/ErrorResponse";
 import { MyContext } from "../utils/types";
 import { ChannelEntity } from "../entities/Channel";
 import { UserEntity } from "../entities/User";
 import { getConnection } from "typeorm";
+import { NEW_MESSAGE } from "../utils/topics";
 
 @Resolver( MessageEntity )
 export class MessageResolver
@@ -41,7 +42,9 @@ export class MessageResolver
         @Arg( 'channelId' )
         channelId: number,
         @Ctx()
-        { session, }: MyContext
+        { session, }: MyContext,
+        @PubSub()
+        pubsub: PubSubEngine
     ): Promise<MessageEntity>
     {
         const channel = await ChannelEntity.findOne( channelId );
@@ -59,6 +62,10 @@ export class MessageResolver
                 SET "messageIds" = "messageIds" || ${ newMessage.id }
                 WHERE id = ${ channelId }
             `) );
+
+        const payload = newMessage;
+        await pubsub.publish( NEW_MESSAGE, payload );
+
         return newMessage;
     }
 

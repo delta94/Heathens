@@ -1,15 +1,17 @@
 import { ErrorResponse } from "../utils/ErrorResponse";
-import { Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, FieldResolver, Mutation, Query, Resolver, Root, UseMiddleware, Subscription } from "type-graphql";
 import { ChannelEntity } from '../entities/Channel';
 import { isAdmin, isAuthenticated } from "../middlewares/protect";
 import { MyContext } from "../utils/types";
 import { UserEntity } from "../entities/User";
 import { MessageEntity } from "../entities/Message";
 import { getConnection } from "typeorm";
+import { NEW_MESSAGE } from "../utils/topics";
 
 @Resolver( ChannelEntity )
 export class ChannelResolver
 {
+
     @FieldResolver( () => [ UserEntity ], { nullable: true } )
     users (
         @Root()
@@ -63,6 +65,31 @@ export class ChannelResolver
         }
 
         return channel;
+    }
+
+    @UseMiddleware( isAuthenticated )
+    @Subscription( () => [ MessageEntity ], {
+        topics: [ NEW_MESSAGE ]
+    } )
+    async getChannelMessages (
+        @Arg( 'id' )
+        id: number,
+        @Ctx()
+        { messagesLoader }: MyContext
+    ): Promise<( MessageEntity | Error )[]>
+    {
+        const channel = await ChannelEntity.findOne( id );
+
+        if ( !channel )
+        {
+            throw new ErrorResponse( 'Resource does not exits', 404 );
+        }
+
+        if ( !channel.messageIds )
+        {
+            return [];
+        }
+        return messagesLoader.loadMany( channel.messageIds );
     }
 
     @UseMiddleware( isAuthenticated, isAdmin )
