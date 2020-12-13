@@ -75,7 +75,8 @@ const main = async () =>
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
             resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver ],
-            validate: false
+            validate: false,
+            pubSub: createPubSub()
         } ),
         context: ( { req, res } ): MyContext => ( { req, res, session: req.session, usersLoader: usersLoader(), messagesLoader: messagesLoader(), channelLoader: channelLoader(), pubsub: createPubSub() } ),
         subscriptions: {

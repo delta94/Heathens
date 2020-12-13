@@ -68,28 +68,19 @@ export class ChannelResolver
     }
 
     @UseMiddleware( isAuthenticated )
-    @Subscription( () => [ MessageEntity ], {
-        topics: [ NEW_MESSAGE ]
-    } )
-    async getChannelMessages (
-        @Arg( 'id' )
-        id: number,
-        @Ctx()
-        { messagesLoader }: MyContext
-    ): Promise<( MessageEntity | Error )[]>
+    @Subscription(
+        () => MessageEntity,
+        {
+            topics: NEW_MESSAGE
+        }
+    )
+    newMessage (
+        @Root()
+        payload: MessageEntity
+    ): MessageEntity
     {
-        const channel = await ChannelEntity.findOne( id );
-
-        if ( !channel )
-        {
-            throw new ErrorResponse( 'Resource does not exits', 404 );
-        }
-
-        if ( !channel.messageIds )
-        {
-            return [];
-        }
-        return messagesLoader.loadMany( channel.messageIds );
+        console.log( 'payload', payload );
+        return payload;
     }
 
     @UseMiddleware( isAuthenticated, isAdmin )
