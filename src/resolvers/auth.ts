@@ -137,7 +137,7 @@ export class AuthResolver
         await getConnection().query( ( `
                 UPDATE channel_entity
                 SET "userIds" = "userIds" || ${ session.user }
-                WHERE id = ${ channelId }
+                WHERE id = ${ channelId };
             `) );
 
         return true;
@@ -164,7 +164,7 @@ export class AuthResolver
         await getConnection().query( ( `
                 UPDATE channel_entity SET "userIds" = (SELECT ARRAY(SELECT UNNEST("userIds")
                 EXCEPT
-                SELECT UNNEST(ARRAY[${ userId }])))
+                SELECT UNNEST(ARRAY[${ userId }])));
             `) );
 
         return true;
@@ -195,12 +195,12 @@ export class AuthResolver
             await tn.query( `
             UPDATE channel_entity SET "messageIds" = (SELECT ARRAY(SELECT UNNEST("messageIds")
                 EXCEPT 
-                SELECT UNNEST(ARRAY[${ messageIds }])))
+                SELECT UNNEST(ARRAY[${ messageIds }])));
             `);
 
             await tn.query( `
                 DELETE from message_entity
-                WHERE "posterId" = ${ userId }
+                WHERE "posterId" = ${ userId };
             `);
         } );
 

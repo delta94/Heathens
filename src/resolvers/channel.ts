@@ -5,6 +5,7 @@ import { isAdmin, isAuthenticated } from "../middlewares/protect";
 import { MyContext } from "../utils/types";
 import { UserEntity } from "../entities/User";
 import { MessageEntity } from "../entities/Message";
+import { getConnection } from "typeorm";
 
 @Resolver( ChannelEntity )
 export class ChannelResolver
@@ -15,11 +16,11 @@ export class ChannelResolver
         channel: ChannelEntity,
         @Ctx()
         { usersLoader }: MyContext,
-    ): Promise<( UserEntity | Error )[]> | null
+    ): Promise<( UserEntity | Error )[]> | []
     {
         if ( !channel.userIds )
         {
-            return null;
+            return [];
         }
         return usersLoader.loadMany( channel.userIds );
     }
@@ -30,11 +31,11 @@ export class ChannelResolver
         channel: ChannelEntity,
         @Ctx()
         { messagesLoader }: MyContext,
-    ): Promise<( MessageEntity | Error )[]> | null
+    ): Promise<( MessageEntity | Error )[]> | []
     {
         if ( !channel.messageIds )
         {
-            return null;
+            return [];
         }
         return messagesLoader.loadMany( channel.messageIds );
     }
@@ -91,7 +92,18 @@ export class ChannelResolver
             throw new ErrorResponse( 'Resource does not exits', 404 );
         }
 
-        ChannelEntity.delete( { id } );
+        getConnection().transaction( async tn =>
+        {
+            await tn.query( `
+                DELETE FROM message_entity 
+                WHERE "channelId" = ${ channel.id }
+            ` );
+
+            await tn.query( `
+                DELETE FROM channel_entity
+                WHERE id = ${ channel.id }
+            `);
+        } );
 
         return true;
     }

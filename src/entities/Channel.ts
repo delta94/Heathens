@@ -20,12 +20,8 @@ export class ChannelEntity extends BaseEntity
     desc!: string;
 
     @OneToMany( () => UserEntity, user => user.channel, { nullable: true } )
-    @Field( () => [ UserEntity ], { defaultValue: null } )
-    users: UserEntity[] | null = null;
-
-    // @OneToMany( () => UserEntity, user => user.channel, { nullable: true } )
-    // @Field( () => [ UserEntity ], { nullable: true } )
-    // users: UserEntity[];
+    @Field( () => [ UserEntity ], { nullable: true } )
+    users: UserEntity[] | null;
 
     @Column( 'int', { nullable: true, array: true } )
     userIds: number[];
@@ -34,11 +30,8 @@ export class ChannelEntity extends BaseEntity
     messageIds: number[];
 
     @OneToMany( () => MessageEntity, message => message.channel, { nullable: true } )
-    @Field( () => [ MessageEntity ], { defaultValue: null } )
-    messages: MessageEntity[] | null = null;
-    // @OneToMany( () => MessageEntity, message => message.channel, { nullable: true } )
-    // @Field( () => [ MessageEntity ], { nullable: true } )
-    // messages: MessageEntity[];
+    @Field( () => [ MessageEntity ], { nullable: true } )
+    messages: MessageEntity[] | null;
 
     @Field( () => String )
     @CreateDateColumn()

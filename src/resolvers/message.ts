@@ -83,18 +83,25 @@ export class MessageResolver
             throw new ErrorResponse( 'Not Authorized', 400 );
         }
 
+        const channel = await ChannelEntity.findOne( message.channelId );
+
+        if ( !channel?.userIds.includes( message.posterId ) )
+        {
+            throw new ErrorResponse( 'You must join the channel first', 404 );
+        }
+
         await getConnection().transaction( async tn =>
         {
             await tn.query( ( `
                 UPDATE channel_entity SET "messageIds" = (SELECT ARRAY(SELECT UNNEST("messageIds")
                 EXCEPT
-                SELECT UNNEST(ARRAY[${ message.channelId }])))
-                WHERE id = ${ message.channelId }
+                SELECT UNNEST(ARRAY[${ message.id }])))
+                WHERE id = ${ message.channelId };
             `) );
 
             await tn.query( `
                 DELETE FROM message_entity
-                WHERE id = ${ message.id }
+                WHERE id = ${ message.id };
             `);
 
         } );
