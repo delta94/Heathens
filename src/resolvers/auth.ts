@@ -44,7 +44,7 @@ export class AuthResolver
     {
         if ( session.user )
         {
-            throw new ErrorResponse( 'Not Authenticated', 401 );
+            throw new ErrorResponse( 'Not Authorized', 401 );
         }
 
         const hashedPassword = await argon.hash( password );
@@ -68,7 +68,7 @@ export class AuthResolver
     {
         if ( session.user )
         {
-            throw new ErrorResponse( 'Not Authenticated', 401 );
+            throw new ErrorResponse( 'Not Authorized', 401 );
         }
 
         const user = await UserEntity.findOne( { username } );
@@ -157,10 +157,14 @@ export class AuthResolver
         {
             throw new ErrorResponse( 'Channel does not exists', 404 );
         }
+        const userId = parseInt( session.user as string );
+
+        console.log( userId, channel.id );
+
         await getConnection().query( ( `
-                UPDATE channel_entity
-                SET "userIds" = array_remove("userIds", ${ session.user })
-                WHERE id = ${ channel.id }
+                UPDATE channel_entity SET "userIds" = (SELECT ARRAY(SELECT UNNEST("userIds")
+                EXCEPT
+                SELECT UNNEST(ARRAY[${ userId }])))
             `) );
 
         return true;
@@ -189,7 +193,7 @@ export class AuthResolver
         await getConnection().transaction( async tn =>
         {
             await tn.query( `
-            update channel_entity set "messageIds" = (SELECT ARRAY(SELECT UNNEST("messageIds")
+            UPDATE channel_entity SET "messageIds" = (SELECT ARRAY(SELECT UNNEST("messageIds")
                 EXCEPT 
                 SELECT UNNEST(ARRAY[${ messageIds }])))
             `);

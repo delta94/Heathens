@@ -83,13 +83,21 @@ export class MessageResolver
             throw new ErrorResponse( 'Not Authorized', 400 );
         }
 
-        await getConnection().query( ( `
-                UPDATE channel_entity
-                SET "messageIds" = array_remove("messageIds", ${ message.id })
+        await getConnection().transaction( async tn =>
+        {
+            await tn.query( ( `
+                UPDATE channel_entity SET "messageIds" = (SELECT ARRAY(SELECT UNNEST("messageIds")
+                EXCEPT
+                SELECT UNNEST(ARRAY[${ message.channelId }])))
                 WHERE id = ${ message.channelId }
             `) );
 
-        MessageEntity.delete( { id } );
+            await tn.query( `
+                DELETE FROM message_entity
+                WHERE id = ${ message.id }
+            `);
+
+        } );
         return true;
     }
 }
