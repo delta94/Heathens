@@ -6,7 +6,7 @@ import { MyContext } from "../utils/types";
 import { UserEntity } from "../entities/User";
 import { MessageEntity } from "../entities/Message";
 import { getConnection } from "typeorm";
-import { NEW_MESSAGE } from "../utils/topics";
+import { NEW_MESSAGE, NEW_NOTIFICATION } from "../utils/topics";
 
 @Resolver( ChannelEntity )
 export class ChannelResolver
@@ -83,6 +83,24 @@ export class ChannelResolver
     {
 
         return payload;
+    }
+
+    @Subscription(
+        () => String,
+        {
+
+            topics: NEW_NOTIFICATION,
+            filter: ( { payload, args } ) => args.channelId === payload.channelId
+        }
+    )
+    newNotification (
+        @Root()
+        payload: any,
+        @Arg( 'channelId' )
+        _: number
+    ): MessageEntity
+    {
+        return payload.message;
     }
 
     @UseMiddleware( isAuthenticated, isAdmin )

@@ -1,5 +1,5 @@
 import { MyContext } from "../utils/types";
-import { Arg, Ctx, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, Mutation, PubSub, PubSubEngine, Query, Resolver, UseMiddleware } from "type-graphql";
 import { UserEntity } from '../entities/User';
 import { ErrorResponse } from "../utils/ErrorResponse";
 import argon from 'argon2';
@@ -7,6 +7,7 @@ import { isAuthenticated } from "../middlewares/protect";
 import { ChannelEntity } from "../entities/Channel";
 import { getConnection } from "typeorm";
 import { MessageEntity } from "../entities/Message";
+import { NEW_NOTIFICATION } from "../utils/topics";
 
 @Resolver( UserEntity )
 export class AuthResolver
@@ -52,6 +53,8 @@ export class AuthResolver
         const newUser = await UserEntity.create( { name, email, password: hashedPassword, username } ).save();
 
         session.user = newUser.id;
+        session.username = newUser.username;
+
 
         return newUser;
     }
@@ -87,6 +90,7 @@ export class AuthResolver
         }
 
         session.user = user.id;
+        session.username = user.username;
 
         return user;
     }
@@ -109,6 +113,14 @@ export class AuthResolver
         { session }: MyContext
     ): Promise<boolean>
     {
+        const userId = parseInt( session.user as string );
+
+        await getConnection().query( ( `
+                UPDATE channel_entity SET "userIds" = (SELECT ARRAY(SELECT UNNEST("userIds")
+                EXCEPT
+                SELECT UNNEST(ARRAY[${ userId }])));
+            `) );
+
         session.destroy( err =>
         {
             if ( err )
@@ -126,20 +138,30 @@ export class AuthResolver
         @Ctx()
         { session }: MyContext,
         @Arg( 'channelId' )
-        channelId: number
+        channelId: number,
+        @PubSub()
+        pubsub: PubSubEngine
     ): Promise<boolean>
     {
         const channel = await ChannelEntity.findOne( channelId );
+
         if ( !channel )
         {
             throw new ErrorResponse( 'Channel does not exists', 404 );
         }
+
+        if ( channel.userIds && channel.userIds.includes( session.user as number ) )
+        {
+            throw new ErrorResponse( 'You have already joined', 404 );
+        }
+
         await getConnection().query( ( `
                 UPDATE channel_entity
                 SET "userIds" = "userIds" || ${ session.user }
                 WHERE id = ${ channelId };
             `) );
 
+        pubsub.publish( NEW_NOTIFICATION, { message: `${ session.username } has joined`, channelId: channel.id } );
         return true;
     }
 
@@ -149,7 +171,9 @@ export class AuthResolver
         @Ctx()
         { session }: MyContext,
         @Arg( 'channelId' )
-        channelId: number
+        channelId: number,
+        @PubSub()
+        pubsub: PubSubEngine
     ): Promise<boolean>
     {
         const channel = await ChannelEntity.findOne( channelId );
@@ -157,9 +181,13 @@ export class AuthResolver
         {
             throw new ErrorResponse( 'Channel does not exists', 404 );
         }
-        const userId = parseInt( session.user as string );
 
-        console.log( userId, channel.id );
+        if ( channel.userIds && !channel.userIds.includes( session.user as number ) )
+        {
+            throw new ErrorResponse( 'You have already left', 404 );
+        }
+
+        const userId = parseInt( session.user as string );
 
         await getConnection().query( ( `
                 UPDATE channel_entity SET "userIds" = (SELECT ARRAY(SELECT UNNEST("userIds")
@@ -167,6 +195,7 @@ export class AuthResolver
                 SELECT UNNEST(ARRAY[${ userId }])));
             `) );
 
+        pubsub.publish( NEW_NOTIFICATION, { message: `${ session.username } has left`, channelId: channel.id } );
         return true;
     }
 

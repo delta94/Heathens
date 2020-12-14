@@ -1,2 +1,2 @@
 export const NEW_MESSAGE = 'NEW_MESSAGE';
-export const NOTIFICATION = 'NOTIFICATION';
+export const NEW_NOTIFICATION = 'NEW_NOTIFICATION';
