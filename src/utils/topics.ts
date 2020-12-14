@@ -1,3 +1,2 @@
 export const NEW_MESSAGE = 'NEW_MESSAGE';
-export const SOMEONE_JOINED = 'SOMEONE_JOINED';
-export const SOMEONE_LEFT = 'SOMEONE_LEFT';
+export const NOTIFICATION = 'NOTIFICATION';

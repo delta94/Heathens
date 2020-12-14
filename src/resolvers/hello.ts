@@ -1,4 +1,4 @@
-import { Publisher, PubSub, Query, Resolver, Root, Subscription } from "type-graphql";
+import { Query, Resolver } from "type-graphql";
 
 @Resolver()
 export class HelloResolver
@@ -8,34 +8,6 @@ export class HelloResolver
     {
         return 'worlds';
     }
-
-    @Subscription(
-        () => String,
-        {
-            topics: 'ok',
-        }
-    )
-    sub (
-        @Root()
-        payload: String
-    )
-    {
-        return payload;
-    }
-
-    @Query( () => String )
-    pub (
-        @PubSub( 'ok' )
-        publish: Publisher<String>
-    )
-    {
-        setInterval( () =>
-        {
-            publish( 'oh no' );
-        }, 1000 );
-        return 'published';
-    }
-
 }
 
 

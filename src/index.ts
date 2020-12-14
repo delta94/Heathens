@@ -19,7 +19,6 @@ import { MyContext } from './utils/types';
 import { ChannelResolver } from './resolvers/channel';
 import { MessageEntity } from './entities/Message';
 import { MessageResolver } from './resolvers/message';
-import { SampleResolver } from './resolvers/mysubs';
 import { usersLoader, messagesLoader, channelLoader } from './utils/dataLoaders';
 import { createPubSub } from './utils/pubsub';
 import { createServer } from 'http';
@@ -73,7 +72,7 @@ const main = async () =>
 
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
-            resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver, SampleResolver ],
+            resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver, ],
             validate: false,
             pubSub: createPubSub()
         } ),
