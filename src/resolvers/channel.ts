@@ -75,7 +75,7 @@ export class ChannelResolver
     )
     newMessage (
         @Root()
-        payload: MessageEntity
+        payload: MessageEntity,
     ): MessageEntity
     {
         return payload;

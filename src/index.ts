@@ -23,8 +23,7 @@ import { SampleResolver } from './resolvers/mysubs';
 import { usersLoader, messagesLoader, channelLoader } from './utils/dataLoaders';
 import { createPubSub } from './utils/pubsub';
 import { createServer } from 'http';
-import { ConnectionContext } from 'subscriptions-transport-ws';
-
+import { ErrorResponse } from './utils/ErrorResponse';
 
 const main = async () =>
 {
@@ -80,11 +79,14 @@ const main = async () =>
         } ),
         context: ( { req, res } ): MyContext => ( { req, res, session: req?.session, usersLoader: usersLoader(), messagesLoader: messagesLoader(), channelLoader: channelLoader(), pubsub: createPubSub() } ),
         subscriptions: {
-            onConnect: ( _, __, ctx: ConnectionContext ) =>
+            onConnect: ( _, ws: any ) =>
             {
-                sessionParser( ctx.request as Request, {} as Response, () =>
+                sessionParser( ws.upgradeReq as Request, {} as Response, () =>
                 {
-                    console.log( 'WS Auth Done' );
+                    if ( !ws.upgradeReq.session.user )
+                    {
+                        throw new ErrorResponse( 'Fuck You!', 401 );
+                    }
                 } );
             }
         }
