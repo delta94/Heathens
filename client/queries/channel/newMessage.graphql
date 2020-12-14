@@ -1,0 +1,11 @@
+subscription{
+  newMessage(){
+    content
+    poster{
+      username
+    }
+    channel{
+      name
+    }
+  }
+}

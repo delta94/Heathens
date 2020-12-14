@@ -70,14 +70,18 @@ export class ChannelResolver
     @Subscription(
         () => MessageEntity,
         {
-            topics: NEW_MESSAGE
+            topics: NEW_MESSAGE,
+            filter: ( { payload, args } ) => args.channelId === payload.channelId
         }
     )
     newMessage (
         @Root()
         payload: MessageEntity,
+        @Arg( 'channelId' )
+        _: number
     ): MessageEntity
     {
+
         return payload;
     }
 
