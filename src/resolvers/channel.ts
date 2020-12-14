@@ -67,7 +67,6 @@ export class ChannelResolver
         return channel;
     }
 
-    @UseMiddleware( isAuthenticated )
     @Subscription(
         () => MessageEntity,
         {
@@ -79,7 +78,6 @@ export class ChannelResolver
         payload: MessageEntity
     ): MessageEntity
     {
-        console.log( 'payload', payload );
         return payload;
     }
 

@@ -63,8 +63,7 @@ export class MessageResolver
                 WHERE id = ${ channelId }
             `) );
 
-        const payload = newMessage;
-        await publish( payload );
+        await publish( newMessage );
 
         return newMessage;
     }

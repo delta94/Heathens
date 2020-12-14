@@ -23,8 +23,7 @@ import { SampleResolver } from './resolvers/mysubs';
 import { usersLoader, messagesLoader, channelLoader } from './utils/dataLoaders';
 import { createPubSub } from './utils/pubsub';
 import { createServer } from 'http';
-import { execute, subscribe } from 'graphql';
-import { SubscriptionServer } from 'subscriptions-transport-ws';
+import { ConnectionContext } from 'subscriptions-transport-ws';
 
 
 const main = async () =>
@@ -59,7 +58,7 @@ const main = async () =>
         res.end();
     } );
 
-    app.use( session( {
+    const sessionParser = session( {
         store: new RedisStore( { client: RedisClient } ),
         name: 'quid',
         secret: process.env.SESSION_SECRET!,
@@ -71,7 +70,7 @@ const main = async () =>
             secure: isProd(),
             maxAge: 1000 * 60 * 60
         }
-    } ) );
+    } );
 
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
@@ -79,30 +78,29 @@ const main = async () =>
             validate: false,
             pubSub: createPubSub()
         } ),
-        context: ( { req, res } ): MyContext => ( { req, res, session: req.session, usersLoader: usersLoader(), messagesLoader: messagesLoader(), channelLoader: channelLoader(), pubsub: createPubSub() } ),
+        context: ( { req, res } ): MyContext => ( { req, res, session: req?.session, usersLoader: usersLoader(), messagesLoader: messagesLoader(), channelLoader: channelLoader(), pubsub: createPubSub() } ),
+        subscriptions: {
+            onConnect: ( _, __, ctx: ConnectionContext ) =>
+            {
+                sessionParser( ctx.request as Request, {} as Response, () =>
+                {
+                    console.log( 'WS Auth Done' );
+                } );
+            }
+        }
     } );
 
-    apolloServer.applyMiddleware( { app, cors: false } );
-
+    app.use( sessionParser );
     app.use( errorHandler );
 
-    const server = createServer( app );
+    apolloServer.applyMiddleware( { app, cors: false } );
+    const ws = createServer( app );
+    apolloServer.installSubscriptionHandlers( ws );
+
     const PORT = process.env.PORT || 5000;
 
-    server.listen( PORT, async () =>
+    ws.listen( PORT, async () =>
     {
-        SubscriptionServer.create( {
-            execute,
-            subscribe,
-            schema: await buildSchema( {
-                resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver, SampleResolver ],
-                validate: false
-            } ),
-        }, {
-            server,
-            path: '/graphql',
-        } );
-
         console.log( `Server started on port ${ PORT }`.green.bold );
     } );
 };
