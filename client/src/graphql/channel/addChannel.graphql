@@ -1,0 +1,8 @@
+mutation AddChannelMutation($name: String!, $desc: String!) {
+  addChannel(name: $name, desc: $desc) {
+    name
+    users {
+      name
+    }
+  }
+}

@@ -1,0 +1,3 @@
+mutation DeleteChannelMutation($id: Int!){
+  deleteChannel(id: $id)
+}

@@ -1,5 +1,5 @@
-{
-  getSingleChannel(id:20){
+query GetSingleChannelQuery($id: Int!){
+  getSingleChannel(id: $id){
     name
     desc
     users{

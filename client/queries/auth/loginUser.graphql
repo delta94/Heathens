@@ -1,6 +1,0 @@
-mutation{
-  loginUser(password:"12345678",username:"inblack67"){
-    name
-    email
-  }
-}

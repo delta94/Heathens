@@ -1,3 +1,0 @@
-mutation{
-  leaveChannel(channelId:1)
-}

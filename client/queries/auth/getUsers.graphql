@@ -1,6 +1,0 @@
-{
-  getUsers{
-    name
-    email
-  }
-}
