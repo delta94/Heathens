@@ -1,4 +1,4 @@
-query GetSingleChannelQuery($id: Int!){
+query GetSingleChannelQuery($id: Float!){
   getSingleChannel(id: $id){
     name
     desc

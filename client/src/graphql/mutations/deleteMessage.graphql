@@ -1,0 +1,3 @@
+mutation DeleteMessageMutation($id: Float!){
+  deleteMessage(id: $id)
+}

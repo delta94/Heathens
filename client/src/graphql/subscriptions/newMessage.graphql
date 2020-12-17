@@ -1,4 +1,4 @@
-subscription NewMessageSubscription($channelId: Int!){
+subscription NewMessageSubscription($channelId: Float!){
   newMessage(channelId: $channelId){
     content
     poster{

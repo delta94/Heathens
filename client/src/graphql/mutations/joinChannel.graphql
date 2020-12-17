@@ -1,0 +1,3 @@
+mutation JoinChannelMutation($id: Float!){
+  joinChannel(channelId: $id)
+}

@@ -1,0 +1,3 @@
+mutation LeaveChannelMutation($id: Float!){
+  leaveChannel(channelId: $id)
+}

@@ -1,4 +1,4 @@
-mutation PostMessageMutation($content: String!, $channelId: Int!){
+mutation PostMessageMutation($content: String!, $channelId: Float!){
   postMessage(content: $content, channelId: $channelId){
     content
     channel{
