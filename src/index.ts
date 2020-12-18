@@ -47,6 +47,7 @@ const main = async () =>
 
     app.use( cors( {
         origin: process.env.CLIENT_URL,
+        credentials: true,
         optionsSuccessStatus: 200
     } ) );
 
@@ -72,7 +73,7 @@ const main = async () =>
 
     const apolloServer = new ApolloServer( {
         schema: await buildSchema( {
-            resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver, ],
+            resolvers: [ HelloResolver, AuthResolver, ChannelResolver, MessageResolver ],
             validate: false,
             pubSub: createPubSub()
         } ),
