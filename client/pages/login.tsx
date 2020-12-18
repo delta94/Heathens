@@ -1,8 +1,10 @@
 import { FormControl, Input, InputLabel, FormHelperText, makeStyles, createStyles, Theme, IconButton, Grid, Button, Typography, Container } from '@material-ui/core';
 import CodeIcon from '@material-ui/icons/Code';
-import { SyntheticEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import Layout from '../components/Layout';
+import Preloader from '../components/Preloader';
+import { withApollo } from '../src/apollo';
+import { useLoginUserMutationMutation } from '../src/generated/graphql';
 import { ILogin } from '../src/interfaces';
 import { theme } from '../styles/styles';
 
@@ -36,10 +38,21 @@ const CLogin = () =>
         }
     } );
 
+    const [ loginMutation, { loading, error, data } ] = useLoginUserMutationMutation();
+
     const handleLogin = ( data: ILogin ) =>
     {
-        console.log( 'formData', data );
+        loginMutation( {
+            variables: data
+        } ).then( () => console.log( 'Logged In!' ) ).catch( err => console.error( err ) );
     };
+
+    if ( loading )
+    {
+        return <Preloader />;
+    }
+
+    console.log( data );
 
     return (
         <Layout>
@@ -79,4 +92,4 @@ const CLogin = () =>
     );
 };
 
-export default CLogin;
+export default withApollo( { ssr: false } )( CLogin );
