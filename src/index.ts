@@ -93,9 +93,11 @@ const main = async () =>
     } );
 
     app.use( sessionParser );
-    app.use( errorHandler );
 
     apolloServer.applyMiddleware( { app, cors: false } );
+
+    app.use( errorHandler );
+
     const ws = createServer( app );
     apolloServer.installSubscriptionHandlers( ws );
 

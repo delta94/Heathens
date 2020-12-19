@@ -1,0 +1,26 @@
+# To fetch schema from
+introspection: http://localhost:5000/graphql 
+
+servers: # same format as for OpenAPI Specification
+  - url: http://localhost:5000/graphql
+    description: Dev
+  - url: http://localhost:5000/graphql
+    description: Prod
+
+info: # same format as for OpenAPI Specification
+    title: Heathens API 
+    description: Realtime Slack Clone    
+
+ # define your domains by providing a set of usecases
+domains:
+  - name: Top Level Menu Section # Name of the domain
+    description: Description  # Description of the domain
+    usecases:         
+     - name: Fetch 'Some' field # Operation name
+       description: Markdown enabled description for operation # Opearation description
+       query: query.some # Query example - fetching single field
+       select: field1 field2 # select only specific sub fields. By default - all are selected
+       expand: field3(sub1, sub2, sub3),field4 # go deep by expanding specific fields.
+     - name: Invoke Mutation # Mutation 
+       description: Markdown enabled description for operation
+       query: mutation.mutateSome # 

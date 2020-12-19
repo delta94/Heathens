@@ -50,13 +50,24 @@ export class AuthResolver
 
         const hashedPassword = await argon.hash( password );
 
-        const newUser = await UserEntity.create( { name, email, password: hashedPassword, username } ).save();
-
-        session.user = newUser.id;
-        session.username = newUser.username;
-
-
-        return newUser;
+        try
+        {
+            const newUser = await UserEntity.create( { name, email, password: hashedPassword, username } ).save();
+            session.user = newUser.id;
+            session.username = newUser.username;
+            return newUser;
+        } catch ( err )
+        {
+            console.error( err );
+            if ( err.code && err.code === '23505' )
+            {
+                throw new ErrorResponse( 'Resource already exists', 401 );
+            }
+            else
+            {
+                throw new ErrorResponse( 'Something went wrong', 500 );
+            }
+        }
     }
 
     @Mutation( () => UserEntity )
