@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useContext, SyntheticEvent } from 'react';
+import { Fragment, useEffect, useContext, SyntheticEvent, useState } from 'react';
 import { createStyles, makeStyles, Theme, Grid, AppBar, Toolbar, Button, IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import DarkModeIcon from '@material-ui/icons/Brightness4';
@@ -9,6 +9,7 @@ import { snackbarContext } from '../context/snackbar/snackbarContext';
 import { useRouter } from 'next/router';
 import { UNAUTH_HOMEPAGE } from '../src/constants';
 import { useApolloClient } from '@apollo/client';
+import CDrawer from './CDrawer';
 
 const useStyles = makeStyles( ( theme: Theme ) =>
     createStyles( {
@@ -38,6 +39,8 @@ const Navbar = () =>
     const { data, error, loading } = useGetMeQueryQuery();
     const [ logoutMutation, logoutMutationResponse ] = useLogoutUserMutationMutation();
     const { setSnackbar } = useContext( snackbarContext );
+
+    const [ isDrawerOpen, setIsDrawerOpen ] = useState( false );
 
     useEffect( () =>
     {
@@ -99,12 +102,18 @@ const Navbar = () =>
             </NextLink>
         </Fragment>;
 
+    const toggleDrawer = ( _: SyntheticEvent<{}, Event> ) =>
+    {
+        setIsDrawerOpen( !isDrawerOpen );
+    };
+
     return (
         <Fragment>
+            {isDrawerOpen ? <CDrawer isOpen={ isDrawerOpen } onOpen={ toggleDrawer } /> : null }
             <AppBar position="static" color='transparent'>
                 <Toolbar className={ classes.tootlbar }>
                     <Grid className={ classes.menu }>
-                        <IconButton edge="start" className={ classes.menuButton } color="inherit" aria-label="menu">
+                        <IconButton onClick={ toggleDrawer } edge="start" className={ classes.menuButton } color="inherit" aria-label="menu">
                             <MenuIcon />
                         </IconButton>
                         <NextLink href='/' passHref>
