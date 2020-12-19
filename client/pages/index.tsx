@@ -1,5 +1,6 @@
 import { Container, Typography, Button, makeStyles, createStyles, Theme } from '@material-ui/core';
 import Layout from '../components/Layout';
+import { withApollo } from '../src/apollo';
 
 const useStyles = makeStyles( ( _: Theme ) => createStyles( {
   root: {
@@ -11,7 +12,7 @@ const CHome = () =>
 {
   const classes = useStyles();
 
-  
+
 
   return (
     <Layout>
@@ -25,4 +26,7 @@ const CHome = () =>
   );
 };
 
-export default CHome;
+
+export default withApollo( { ssr: true } )( CHome );
+
+

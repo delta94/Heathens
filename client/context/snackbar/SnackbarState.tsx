@@ -14,9 +14,7 @@ const SnackbarState = ( props: IProps ) =>
     const initialState: SState = {
         isActive: false,
         message: null,
-        severity: {
-            type: 'error'
-        }
+        severity: null
     };
 
     const [ state, dispatch ] = useReducer( SnackbarReducer, initialState );

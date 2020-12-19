@@ -2,6 +2,8 @@ import React from 'react';
 import App from 'next/app';
 import Head from 'next/head';
 import { ApolloProvider } from '@apollo/client';
+import { onError } from '@apollo/client/link/error';
+import Router from 'next/router';
 
 // On the client, we store the Apollo Client in the following variable.
 // This prevents the client from reinitializing between page transitions.
@@ -173,11 +175,25 @@ export const createWithApollo = (ac) => {
 	};
 };
 
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+	if (graphQLErrors) {
+		graphQLErrors.map(({ message, locations, path }) => {
+			console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
+			if (message === 'Not Authenticated') {
+				Router.replace('/login');
+			}
+		});
+	}
+
+	if (networkError) {
+		console.log(`[Network error]: ${networkError}`);
+	}
+});
+
 function createApolloClient(apolloClient, initialState, ctx) {
 	// The `ctx` (NextPageContext) will only be present on the server.
 	// use it to extract auth headers (ctx.req) or similar.
 	apolloClient.ssrMode = Boolean(ctx);
 	apolloClient.cache.restore(initialState);
-
 	return apolloClient;
 }

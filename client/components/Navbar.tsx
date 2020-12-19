@@ -1,8 +1,14 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect, useContext, SyntheticEvent } from 'react';
 import { createStyles, makeStyles, Theme, Grid, AppBar, Toolbar, Button, IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import DarkModeIcon from '@material-ui/icons/Brightness4';
 import NextLink from 'next/link';
+import { useGetMeQueryQuery, useLogoutUserMutationMutation } from '../src/generated/graphql';
+import Preloader from './Preloader';
+import { snackbarContext } from '../context/snackbar/snackbarContext';
+import { useRouter } from 'next/router';
+import { UNAUTH_HOMEPAGE } from '../src/constants';
+import { useApolloClient } from '@apollo/client';
 
 const useStyles = makeStyles( ( theme: Theme ) =>
     createStyles( {
@@ -26,7 +32,72 @@ const useStyles = makeStyles( ( theme: Theme ) =>
 
 const Navbar = () =>
 {
+    const router = useRouter();
+    const apollo = useApolloClient();
     const classes = useStyles();
+    const { data, error, loading } = useGetMeQueryQuery();
+    const [ logoutMutation, logoutMutationResponse ] = useLogoutUserMutationMutation();
+    const { setSnackbar } = useContext( snackbarContext );
+
+    useEffect( () =>
+    {
+        if ( error )
+        {
+            console.log( 'error = ', error );
+            // setSnackbar( {
+            //     isActive: true,
+            //     message: error.message,
+            //     severity: {
+            //         type: 'error',
+            //     }
+            // } );
+
+            // if ( error.message.toLowerCase().includes( 'not authenticated' ) && router.pathname !== '/register' )
+            // {
+            //     router.replace( UNAUTH_HOMEPAGE );
+            // }
+        }
+    }, [ error ] );
+
+    const handleLogout = ( _: SyntheticEvent ) =>
+    {
+        logoutMutation( {
+            update: ( cache ) =>
+            {
+                cache.evict( { fieldName: 'getMe' } );
+            }
+        } ).then( () =>
+        {
+            setSnackbar( {
+                isActive: true,
+                message: 'Logged Out!',
+                severity: {
+                    type: 'success'
+                }
+            } );
+            // apollo.resetStore();
+            router.push( UNAUTH_HOMEPAGE );
+        } ).catch( err => console.error( err ) );
+    };
+
+    if ( loading || logoutMutationResponse.loading )
+    {
+        return <Preloader />;
+    }
+
+    let smartLinks = null;
+
+    smartLinks = data && data.getMe ? <Fragment>
+        <Button color='inherit'>Welcome { data.getMe.name }</Button>
+        <Button color='inherit' onClick={ handleLogout }>Logout</Button>
+    </Fragment> : <Fragment>
+            <NextLink href='/login' passHref>
+                <Button color='inherit'>Login</Button>
+            </NextLink>
+            <NextLink href='/register' passHref>
+                <Button color='inherit'>Register</Button>
+            </NextLink>
+        </Fragment>;
 
     return (
         <Fragment>
@@ -46,12 +117,7 @@ const Navbar = () =>
                         <IconButton>
                             <DarkModeIcon />
                         </IconButton>
-                        <NextLink href='/login' passHref>
-                            <Button color='inherit'>Login</Button>
-                        </NextLink>
-                        <NextLink href='/register' passHref>
-                            <Button color='inherit'>Register</Button>
-                        </NextLink>
+                        { smartLinks }
                     </Grid>
                 </Toolbar>
             </AppBar>

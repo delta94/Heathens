@@ -19,16 +19,14 @@ const CSnackbar = () =>
         setSnackbar( {
             isActive: false,
             message: null,
-            severity: {
-                type: 'error'
-            }
+            severity: null
         } );
     };
 
     return (
         <div>
             <Snackbar open={ isActive } autoHideDuration={ 6000 } onClose={ handleClose }>
-                <Alert onClose={ handleClose } severity={ severity.type }>
+                <Alert onClose={ handleClose } severity={ severity?.type }>
                     { message }
                 </Alert>
             </Snackbar>

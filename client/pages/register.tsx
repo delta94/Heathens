@@ -1,7 +1,14 @@
 import { FormControl, Input, InputLabel, FormHelperText, makeStyles, createStyles, Theme, Grid, Button, Container } from '@material-ui/core';
 import CodeIcon from '@material-ui/icons/Code';
+import { useRouter } from 'next/router';
+import { useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Layout from '../components/Layout';
+import Preloader from '../components/Preloader';
+import { snackbarContext } from '../context/snackbar/snackbarContext';
+import { withApollo } from '../src/apollo';
+import { AUTH_HOMEPAGE } from '../src/constants';
+import { useRegisterUserMutationMutation } from '../src/generated/graphql';
 import { ILogin, IRegister } from '../src/interfaces';
 import { theme } from '../styles/styles';
 
@@ -26,14 +33,64 @@ const useStyles = makeStyles( ( _: Theme ) => createStyles( {
 
 const CRegister = () =>
 {
+    const router = useRouter();
     const classes = useStyles();
 
-    const { register, handleSubmit, errors } = useForm<IRegister>();
+    const { register, handleSubmit, errors } = useForm<IRegister>( {
+        defaultValues: {
+            name: 'Aman',
+            username: 'inblack67',
+            password: 'Aman123@',
+            email: 'aman@gmail.com'
+        }
+    } );
+
+    const [ registerMutation, { loading, error, data } ] = useRegisterUserMutationMutation();
+
+    const { setSnackbar } = useContext( snackbarContext );
+
+    useEffect( () =>
+    {
+        if ( error )
+        {
+            console.log( 'error = ', error );
+            setSnackbar( {
+                isActive: true,
+                message: error.message,
+                severity: {
+                    type: 'error',
+                }
+            } );
+
+        }
+    }, [ error ] );
 
     const handleRegister = ( data: IRegister ) =>
     {
-        console.log( 'formData', data );
+        registerMutation( {
+            variables: data
+        } ).then( () =>
+        {
+            setSnackbar( {
+                isActive: true,
+                message: 'Registered!',
+                severity: {
+                    type: 'success',
+                }
+            } );
+
+            router.push( AUTH_HOMEPAGE );
+
+
+        } ).catch( err => console.error( err ) );
     };
+
+    if ( loading )
+    {
+        return <Preloader />;
+    }
+
+    console.log( 'register response = ', data );
 
     return (
         <Layout>
@@ -92,7 +149,7 @@ const CRegister = () =>
                                 <FormControl error={ errors.password ? true : false }
                                     fullWidth>
                                     <InputLabel htmlFor="password"> Password</InputLabel>
-                                    <Input name='password' id="password" inputRef={ register( {
+                                    <Input type='password' name='password' id="password" inputRef={ register( {
                                         required: 'Password is required',
                                         maxLength: {
                                             value: 30,
@@ -129,4 +186,6 @@ const CRegister = () =>
     );
 };
 
-export default CRegister;
+
+export default withApollo( { ssr: false } )( CRegister );
+

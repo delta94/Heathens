@@ -1,11 +1,13 @@
 import { FormControl, Input, InputLabel, FormHelperText, makeStyles, createStyles, Theme, IconButton, Grid, Button, Typography, Container } from '@material-ui/core';
 import CodeIcon from '@material-ui/icons/Code';
+import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Layout from '../components/Layout';
 import Preloader from '../components/Preloader';
 import { snackbarContext } from '../context/snackbar/snackbarContext';
 import { withApollo } from '../src/apollo';
+import { AUTH_HOMEPAGE } from '../src/constants';
 import { useLoginUserMutationMutation } from '../src/generated/graphql';
 import { ILogin } from '../src/interfaces';
 import { theme } from '../styles/styles';
@@ -31,6 +33,7 @@ const useStyles = makeStyles( ( _: Theme ) => createStyles( {
 
 const CLogin = () =>
 {
+    const router = useRouter();
     const classes = useStyles();
 
     const { register, handleSubmit, errors } = useForm<ILogin>( {
@@ -72,6 +75,9 @@ const CLogin = () =>
                     type: 'success',
                 }
             } );
+
+            router.push( AUTH_HOMEPAGE );
+
         } ).catch( err => console.error( err ) );
     };
 
@@ -102,7 +108,7 @@ const CLogin = () =>
                                 <FormControl error={ errors.password ? true : false }
                                     fullWidth>
                                     <InputLabel htmlFor="password"> Password</InputLabel>
-                                    <Input name='password' id="password" inputRef={ register( {
+                                    <Input type='password' name='password' id="password" inputRef={ register( {
                                         required: 'Password is required'
                                     } ) } />
                                     <FormHelperText
