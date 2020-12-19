@@ -25,8 +25,6 @@ const CSnackbar = () =>
         } );
     };
 
-    console.log( 'isActive, message, severity', isActive, message, severity );
-
     return (
         <div>
             <Snackbar open={ isActive } autoHideDuration={ 6000 } onClose={ handleClose }>

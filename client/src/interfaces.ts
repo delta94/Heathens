@@ -1,8 +1,9 @@
+import { SState } from "./types";
 
 const severityTypes = [ 'error', 'warning', 'info', 'success' ] as const;
 export interface ISeverities
 {
-    type: typeof severityTypes[number];
+    type: typeof severityTypes[ number ];
 }
 
 export interface ISnackbarProps
@@ -11,6 +12,11 @@ export interface ISnackbarProps
     message: string;
     isActive: boolean;
 }
+
+export interface ISContext extends SState
+{
+    setSnackbar: ( _: SState ) => void;
+};
 
 export interface ILogin
 {
