@@ -4,7 +4,7 @@ const Preloader = () =>
 {
     return (
         <div id="preloader">
-            <CircularProgress />
+            <CircularProgress size='3rem' />
         </div>
     );
 };

@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import { Fragment } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import Navbar from './Navbar';
+
 
 const Layout = ( { children } ) =>
 {
@@ -16,14 +18,12 @@ const Layout = ( { children } ) =>
                 <meta name='description' content='realt time chat app' />
                 <meta name='keywords' content='amoeba' />
                 <title>Heathens</title>
-                {/* <link rel='manifest' href='/manifest.json' />
-                <link href='./icons/js.png' rel='icon' type='image/png' sizes='16x16' />
-                <link href='./icons/js.png' rel='icon' type='image/png' sizes='32x32' />
-                <link rel='apple-touch-icon' href='/apple-icon.png' /> */}
                 <meta name='theme-color' content='#000' />
             </Head>
             <Navbar />
-            {children }
+            <ErrorBoundary>
+                { children }
+            </ErrorBoundary>
         </Fragment>
     );
 };

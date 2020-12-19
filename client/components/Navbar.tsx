@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { createStyles, makeStyles, Theme, Grid, AppBar, Toolbar, Typography, Button, IconButton } from '@material-ui/core';
+import { createStyles, makeStyles, Theme, Grid, AppBar, Toolbar, Button, IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import DarkModeIcon from '@material-ui/icons/Brightness4';
 import NextLink from 'next/link';
