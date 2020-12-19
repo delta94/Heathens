@@ -1,39 +1,36 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
-
-const severities = [ 'error', 'warning', 'info', 'success' ] as const;
-interface IProps
-{
-    severity: typeof severities[ number ];
-    message: string;
-    isActive: boolean;
-}
+import { ISnackbarProps } from '../src/interfaces';
+import { snackbarContext as SnackbarContext } from '../context/snackbar/snackbarContext';
 
 const Alert = ( props: any ) =>
 {
     return <MuiAlert elevation={ 6 } variant='filled' { ...props } />;
 };
 
-const CSnackbar: FC<IProps> = ( { severity, message, isActive } ) =>
+const CSnackbar = () =>
 {
 
-    const [ isOpen, setIsOpen ] = useState<boolean>( false );
-
-    useEffect( () =>
-    {
-        setIsOpen( isActive );
-    }, [ isActive ] );
+    const { isActive, message, severity, setSnackbar } = useContext( SnackbarContext );
 
     const handleClose = () =>
     {
-        setIsOpen( false );
+        setSnackbar( {
+            isActive: false,
+            message: null,
+            severity: {
+                type: 'error'
+            }
+        } );
     };
+
+    console.log( 'isActive, message, severity', isActive, message, severity );
 
     return (
         <div>
-            <Snackbar open={ isOpen } autoHideDuration={ 6000 } onClose={ handleClose }>
-                <Alert onClose={ handleClose } severity={ severity }>
+            <Snackbar open={ isActive } autoHideDuration={ 6000 } onClose={ handleClose }>
+                <Alert onClose={ handleClose } severity={ severity.type }>
                     { message }
                 </Alert>
             </Snackbar>

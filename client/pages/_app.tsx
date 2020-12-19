@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { ThemeProvider, CssBaseline } from '@material-ui/core';
 import '../styles/globals.css';
 import { theme } from '../styles/styles';
+import SnackbarState from '../context/snackbar/SnackbarState';
+import CSnackbar from '../components/CSnackbar';
 
 function MyApp ( { Component, pageProps } )
 {
@@ -16,10 +18,13 @@ function MyApp ( { Component, pageProps } )
   }, [] );
 
   return (
-    <ThemeProvider theme={ theme }>
-      <CssBaseline />
-      <Component { ...pageProps } />;
+    <SnackbarState>
+      <ThemeProvider theme={ theme }>
+        <CssBaseline />
+        <CSnackbar />
+        <Component { ...pageProps } />;
     </ThemeProvider>
+    </SnackbarState>
   );
 }
 

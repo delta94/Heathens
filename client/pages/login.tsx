@@ -1,8 +1,10 @@
 import { FormControl, Input, InputLabel, FormHelperText, makeStyles, createStyles, Theme, IconButton, Grid, Button, Typography, Container } from '@material-ui/core';
 import CodeIcon from '@material-ui/icons/Code';
+import { useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Layout from '../components/Layout';
 import Preloader from '../components/Preloader';
+import { snackbarContext } from '../context/snackbar/snackbarContext';
 import { withApollo } from '../src/apollo';
 import { useLoginUserMutationMutation } from '../src/generated/graphql';
 import { ILogin } from '../src/interfaces';
@@ -40,11 +42,37 @@ const CLogin = () =>
 
     const [ loginMutation, { loading, error, data } ] = useLoginUserMutationMutation();
 
+    const { setSnackbar } = useContext( snackbarContext );
+
+    useEffect( () =>
+    {
+        if ( error )
+        {
+            console.log( 'error = ', error );
+            setSnackbar( {
+                isActive: true,
+                message: error.message,
+                severity: {
+                    type: 'error',
+                }
+            } );
+        }
+    }, [ error ] );
+
     const handleLogin = ( data: ILogin ) =>
     {
         loginMutation( {
             variables: data
-        } ).then( () => console.log( 'Logged In!' ) ).catch( err => console.error( err ) );
+        } ).then( () =>
+        {
+            setSnackbar( {
+                isActive: true,
+                message: 'Logged In!',
+                severity: {
+                    type: 'success',
+                }
+            } );
+        } ).catch( err => console.error( err ) );
     };
 
     if ( loading )
@@ -52,7 +80,7 @@ const CLogin = () =>
         return <Preloader />;
     }
 
-    console.log( data );
+    console.log( 'login response = ', data );
 
     return (
         <Layout>

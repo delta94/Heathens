@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import { Fragment } from 'react';
-import ErrorBoundary from './ErrorBoundary';
 import Navbar from './Navbar';
 
 
@@ -21,9 +20,7 @@ const Layout = ( { children } ) =>
                 <meta name='theme-color' content='#000' />
             </Head>
             <Navbar />
-            <ErrorBoundary>
-                { children }
-            </ErrorBoundary>
+            { children }
         </Fragment>
     );
 };
