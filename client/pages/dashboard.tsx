@@ -1,39 +1,18 @@
-import { useContext, useEffect } from "react";
-import Preloader from "../components/Preloader";
-import { snackbarContext } from "../context/snackbar/snackbarContext";
+import { Grid } from "@material-ui/core";
+import { Container } from "next/app";
+import CChannels from "../components/CChannels";
 import { withApollo } from "../src/apollo";
-import { useGetChannelsQueryQuery } from "../src/generated/graphql";
 
 const dashboard = () =>
 {
-    const { data, error, loading } = useGetChannelsQueryQuery();
-    const { setSnackbar } = useContext( snackbarContext );
-
-    useEffect( () =>
-    {
-        if ( error )
-        {
-            setSnackbar( {
-                isActive: true,
-                message: error.message,
-                severity: {
-                    type: 'error'
-                }
-            } );
-        }
-    }, [ error ] );
-
-    if ( loading )
-    {
-        return <Preloader />;
-    }
-
-    console.log( data );
-
     return (
-        <div>
-            dashing dash
-        </div>
+        <Container>
+            <Grid container>
+                <Grid item xs={ 4 }>
+                    <CChannels />
+                </Grid>
+            </Grid>
+        </Container>
     );
 };
 
