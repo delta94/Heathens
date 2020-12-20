@@ -2,6 +2,7 @@ import { createStyles, makeStyles, Theme, Typography } from "@material-ui/core";
 import { Alert } from '@material-ui/lab';
 import { Container } from "next/app";
 import { FC, Fragment } from "react";
+import { MessageEntity, UserEntity } from "../src/generated/graphql";
 
 const useStyles = makeStyles( ( theme: Theme ) => createStyles( {
     root: {
@@ -13,11 +14,7 @@ const useStyles = makeStyles( ( theme: Theme ) => createStyles( {
 
 interface ICChatBox
 {
-    messages: {
-        content: string,
-        id: number,
-        poster: object;
-    }[];
+    messages: ( { __typename?: "MessageEntity"; } & Pick<MessageEntity, "content"> & { poster: { __typename?: "UserEntity"; } & Pick<UserEntity, "username">; } )[];
 }
 
 const CChatBox: FC<ICChatBox> = ( { messages } ) =>
