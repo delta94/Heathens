@@ -15,6 +15,7 @@ const useStyles = makeStyles( ( theme: Theme ) =>
     createStyles( {
         root: {
             flexGrow: 1,
+            marginLeft: 200
         },
         menuButton: {
             marginRight: theme.spacing( 2 ),
@@ -109,10 +110,9 @@ const Navbar = () =>
 
     return (
         <Fragment>
-            {isDrawerOpen ? <CDrawer isOpen={ isDrawerOpen } onOpen={ toggleDrawer } /> : null }
-            <AppBar position="static" color='transparent'>
+            <AppBar position="static" color='transparent' className={ classes.root }>
                 <Toolbar className={ classes.tootlbar }>
-                    <Grid className={ classes.menu }>
+                    <div className={ classes.menu }>
                         <IconButton onClick={ toggleDrawer } edge="start" className={ classes.menuButton } color="inherit" aria-label="menu">
                             <MenuIcon />
                         </IconButton>
@@ -121,13 +121,13 @@ const Navbar = () =>
                                 Heathens
                             </Button>
                         </NextLink>
-                    </Grid>
-                    <Grid>
+                    </div>
+                    <div>
                         <IconButton>
                             <DarkModeIcon />
                         </IconButton>
                         { smartLinks }
-                    </Grid>
+                    </div>
                 </Toolbar>
             </AppBar>
         </Fragment>
