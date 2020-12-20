@@ -24,6 +24,8 @@ import { createServer } from 'http';
 import { ErrorResponse } from './utils/ErrorResponse';
 import { GraphQLError } from 'graphql';
 import { errorFormatter } from './utils/formatter';
+import rateLimit from 'express-rate-limit';
+import queryComplexity, { fieldExtensionsEstimator, simpleEstimator } from 'graphql-query-complexity';
 
 const main = async () =>
 {
@@ -51,6 +53,13 @@ const main = async () =>
         credentials: true,
         optionsSuccessStatus: 200
     } ) );
+
+    const limiter = rateLimit( {
+        windowMs: 10 * 60 * 1000,   // 10 minutes
+        max: 100
+    } );
+
+    app.use( limiter );
 
     app.get( '/', ( _: Request, res: Response ) =>
     {
@@ -91,6 +100,29 @@ const main = async () =>
                 } );
             }
         },
+        validationRules: [
+            queryComplexity( {
+                maximumComplexity: 16,
+                variables: {},
+                onComplete: ( complexity: number ) =>
+                {
+                    if ( complexity > 16 )
+                    {
+                        console.log( `Query complexity = `.red.bold );
+                    } else
+                    {
+                        console.log( `Query complexity = `.green.bold );
+                    }
+                    console.log( complexity );
+                },
+                estimators: [
+                    fieldExtensionsEstimator(),
+                    simpleEstimator( {
+                        defaultComplexity: 1
+                    } )
+                ]
+            } )
+        ],
         formatError: ( err: GraphQLError ) =>
         {
             const customError = errorFormatter( err );
