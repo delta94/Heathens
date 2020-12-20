@@ -26,6 +26,7 @@ import { GraphQLError } from 'graphql';
 import { errorFormatter } from './utils/formatter';
 import rateLimit from 'express-rate-limit';
 import queryComplexity, { fieldExtensionsEstimator, simpleEstimator } from 'graphql-query-complexity';
+import path from 'path';
 
 const main = async () =>
 {
@@ -61,11 +62,7 @@ const main = async () =>
 
     app.use( limiter );
 
-    app.get( '/', ( _: Request, res: Response ) =>
-    {
-        res.send( 'API up and runnin' );
-        res.end();
-    } );
+    app.use( '/', express.static( path.join( __dirname, '/docs' ) ) );
 
     const sessionParser = session( {
         store: new RedisStore( { client: RedisClient } ),
