@@ -13,7 +13,6 @@ import { createConnection } from "typeorm";
 import { AuthResolver } from './resolvers/auth';
 import { UserEntity } from './entities/User';
 import { ChannelEntity } from './entities/Channel';
-import { errorHandler } from './middlewares/errorHandler';
 import { isProd } from './utils/constants';
 import { MyContext } from './utils/types';
 import { ChannelResolver } from './resolvers/channel';
@@ -23,6 +22,8 @@ import { usersLoader, messagesLoader, channelLoader } from './utils/dataLoaders'
 import { createPubSub } from './utils/pubsub';
 import { createServer } from 'http';
 import { ErrorResponse } from './utils/ErrorResponse';
+import { GraphQLError } from 'graphql';
+import { errorFormatter } from './utils/formatter';
 
 const main = async () =>
 {
@@ -89,6 +90,11 @@ const main = async () =>
                     }
                 } );
             }
+        },
+        formatError: ( err: GraphQLError ) =>
+        {
+            const customError = errorFormatter( err );
+            return customError;
         }
     } );
 
@@ -96,7 +102,7 @@ const main = async () =>
 
     apolloServer.applyMiddleware( { app, cors: false } );
 
-    app.use( errorHandler );
+    // app.use( errorHandler );
 
     const ws = createServer( app );
     apolloServer.installSubscriptionHandlers( ws );
@@ -107,6 +113,7 @@ const main = async () =>
     {
         console.log( `Server started on port ${ PORT }`.green.bold );
     } );
+
 };
 
-main();
+main().catch( err => console.error( err ) );
