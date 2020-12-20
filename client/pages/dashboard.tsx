@@ -2,7 +2,7 @@ import { Grid, Typography, makeStyles, Theme, createStyles } from "@material-ui/
 import { Container } from "next/app";
 import CChannels from "../components/CChannels";
 import { withApollo } from "../src/apollo";
-import { Fragment, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import CChannel from "../components/CChannel";
 
 const useStyles = makeStyles( ( theme: Theme ) => createStyles( {
@@ -23,7 +23,6 @@ const dashboard = () =>
     {
         setCurrentChannel( id );
     };
-
 
     console.log( 'currentChannel = ', currentChannel );
 

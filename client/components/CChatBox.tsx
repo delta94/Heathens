@@ -1,4 +1,4 @@
-import { createStyles, makeStyles, Theme, Typography } from "@material-ui/core";
+import { createStyles, List, ListItem, makeStyles, Theme, Typography } from "@material-ui/core";
 import { Alert } from '@material-ui/lab';
 import { Container } from "next/app";
 import { FC, Fragment } from "react";
@@ -25,9 +25,13 @@ const CChatBox: FC<ICChatBox> = ( { messages } ) =>
         <div className={ classes.root }>
             <Container>
                 { messages.length > 1 ? <Container>
-                    { messages.map( ( message, index ) => <Alert key={ index } variant='outlined' severity='info'>
-                        { message.content }
-                    </Alert> ) }
+                    <List>
+                        { messages.map( ( message, index ) => <div key={ index } >
+                            <ListItem button>
+                                { message.content }
+                            </ListItem>
+                        </div> ) }
+                    </List>
                 </Container> : <Typography variant='h6' color='secondary'>
                         No messages yet.</Typography> }
             </Container>
