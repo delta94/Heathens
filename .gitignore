@@ -3,3 +3,5 @@ node_modules
 dist
 myschema
 schema.graphql
+ormconfig.json
+docs

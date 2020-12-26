@@ -62,7 +62,7 @@ const main = async () =>
 
     app.use( limiter );
 
-    app.use( '/', express.static( path.join( __dirname, '/docs' ) ) );
+    app.use( '/', express.static( path.join( __dirname, '/static' ) ) );
 
     const sessionParser = session( {
         store: new RedisStore( { client: RedisClient } ),

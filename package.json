@@ -9,7 +9,8 @@
     "build": "tsc",
     "gen-env": "gen-env-types .env.local -o src/env.d.ts -e .",
     "migrations:create": "typeorm migration:create -n m1",
-    "migrations:gen": "ts-node typeorm migration:generate -n m1"
+    "migrations:gen": "ts-node typeorm migration:generate -n m1",
+    "gen:docs": "graphdoc -e http://localhost:5000/graphql -o dist/static/."
   },
   "author": "Aman Bhardwaj",
   "license": "MIT",
